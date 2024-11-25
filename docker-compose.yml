@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-dpproject
+    environment:
+      MYSQL_ROOT_PASSWORD: dpproject
+      MYSQL_DATABASE: dpproject
+      MYSQL_USER: dpproject
+      MYSQL_PASSWORD: dpproject
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+    volumes:
+      - mysqlvolume:/var/lib/mysql
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysqlvolume:

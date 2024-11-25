@@ -1,0 +1,17 @@
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/dao/WarehouseLayoutDAO.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/observer/StockManager.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/dao/CategoryDAO.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/observer/Observer.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/database/HibernateUtil.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/alerts/AlertSystem.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/composite/Product.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/factory/WarehouseFactory.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/dao/ProductDAO.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/composite/Category.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/factory/ProductFactory.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/DBConnectionTest.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/factory/CategoryFactory.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/layout/WarehouseLayout.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/observer/Subject.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/database/DBConnection.java
+/Users/murat/IdeaProjects/Design-Pattern-Project/src/main/java/com/designpatterns/InventoryManagementSystem.java

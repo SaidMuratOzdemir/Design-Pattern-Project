@@ -4,10 +4,9 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// Category sınıfı, Composite pattern'ini kullanarak kategorileri hiyerarşik olarak yönetir
 @Entity
 @Table(name = "category")
-public class Category {
+public class Category implements InventoryComponent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -17,7 +16,7 @@ public class Category {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
-    private Category parent; // Üst kategori
+    private Category parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Category> subCategories = new ArrayList<>();
@@ -25,15 +24,13 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Product> products = new ArrayList<>();
 
-    // Boş constructor (JPA için gereklidir)
+    // JPA İÇİN GEREKLİ ELLEMEYİN
     public Category() {}
 
-    // İsme göre constructor
     public Category(String name) {
         this.name = name;
     }
 
-    // Getter ve Setter metodları
     public int getId() {
         return id;
     }
@@ -62,38 +59,25 @@ public class Category {
         return products;
     }
 
-    // Alt kategori ekleme
     public void addSubCategory(Category subCategory) {
+        if (subCategory == null) {
+            throw new IllegalArgumentException("Alt kategori null olamaz.");
+        }
         subCategories.add(subCategory);
         subCategory.setParent(this);
     }
 
-    // Alt kategori çıkarma
     public void removeSubCategory(Category subCategory) {
-        subCategories.remove(subCategory);
-        subCategory.setParent(null);
-    }
-
-    // Ürün ekleme
-    public void addProduct(Product product) {
-        products.add(product);
-        product.setCategory(this);
-    }
-
-    // Ürün çıkarma
-    public void removeProduct(Product product) {
-        products.remove(product);
-        product.setCategory(null);
-    }
-
-    // Kategori ve ilişkili alt kategorileri ve ürünleri göstermek için display metodu
-    public void display(String indent) {
-        System.out.println(indent + "Category: " + name);
-        for (Product product : products) {
-            product.display(indent + "  ");
+        if (subCategory != null && subCategories.contains(subCategory)) {
+            subCategories.remove(subCategory);
+            subCategory.setParent(null);
         }
-        for (Category subCategory : subCategories) {
-            subCategory.display(indent + "  ");
+    }
+
+    public void display(String indent) {
+        System.out.println(indent + "- " + name + " (ID: " + id + ")");
+        for (Category sub : subCategories) {
+            sub.display(indent + "  ");
         }
     }
 }

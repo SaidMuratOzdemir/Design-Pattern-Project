@@ -8,9 +8,9 @@ public class HibernateUtil {
 
     static {
         try {
-            // Hibernate yapılandırma dosyasını kullanarak SessionFactory oluşturuyoruz
             sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
         } catch (Throwable ex) {
+            System.err.println("SessionFactory oluşturulurken hata oluştu: " + ex);
             throw new ExceptionInInitializerError(ex);
         }
     }
@@ -20,7 +20,8 @@ public class HibernateUtil {
     }
 
     public static void shutdown() {
-        // SessionFactory'yi kapatarak kaynakları serbest bırakıyoruz
-        getSessionFactory().close();
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
     }
 }

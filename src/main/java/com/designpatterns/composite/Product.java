@@ -1,20 +1,20 @@
 package com.designpatterns.composite;
 
 
-import com.designpatterns.observer.Observer;
+import com.designpatterns.layout.WarehouseLayout;
 import com.designpatterns.observer.Subject;
 import jakarta.persistence.*;
 
 
 @Entity
 @Table(name = "product")
-public class Product {
+public class Product implements InventoryComponent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id; // Veritabanı ID'si
+    private int id;
 
     @Column(name = "product_id", nullable = false, unique = true)
-    private String productId; // Ürün ID'si
+    private String productId;
 
     @Column(nullable = false)
     private String name;
@@ -24,10 +24,14 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private Category category; // Kategori
+    private Category category;
 
     @Transient
-    private Subject subject; // Observer Pattern için Subject
+    private Subject subject;
+
+    @ManyToOne
+    @JoinColumn(name = "warehouse_layout_id")
+    private WarehouseLayout warehouseLayout;
 
     public Product() {
         this.subject = new Subject();
@@ -40,8 +44,6 @@ public class Product {
         this.subject = new Subject();
     }
 
-    // Getter ve Setter metodları
-
     public int getId() {
         return id;
     }
@@ -49,11 +51,6 @@ public class Product {
     public String getProductId() {
         return productId;
     }
-
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
-
 
     public String getName() {
         return name;
@@ -68,11 +65,6 @@ public class Product {
         return stock;
     }
 
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
-
-
     public Category getCategory() {
         return category;
     }
@@ -81,23 +73,18 @@ public class Product {
         this.category = category;
     }
 
-    // Observer Pattern metotları
-    public void addObserver(Observer observer) {
-        subject.addObserver(observer);
+    public WarehouseLayout getWarehouseLayout() {
+        return warehouseLayout;
     }
 
-    public void removeObserver(Observer observer) {
-        subject.removeObserver(observer);
+    public void setWarehouseLayout(WarehouseLayout warehouseLayout) {
+        this.warehouseLayout = warehouseLayout;
     }
 
-    // Stok güncelleme metodu
     public void updateStock(int quantity) {
         this.stock += quantity;
-        // Observer'lara bildirim gönder
-        subject.notifyObservers(this);
     }
 
-    // Ürün bilgilerini görüntüleme metodu
     public void display(String indent) {
         System.out.println(indent + "Product: " + name + " | Stock: " + stock);
     }

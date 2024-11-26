@@ -1,7 +1,6 @@
 package com.designpatterns.dao;
 
 import com.designpatterns.composite.Category;
-import com.designpatterns.database.DBConnection;
 import com.designpatterns.database.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -11,10 +10,8 @@ import java.util.List;
 public class CategoryDAO {
 
     public Category getCategoryByName(String name) {
-        try (Session session = DBConnection.getSessionFactory().openSession()) {
-            return session.createQuery("from Category where name = :name", Category.class)
-                    .setParameter("name", name)
-                    .uniqueResult();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("from Category where name = :name", Category.class).setParameter("name", name).uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -28,13 +25,15 @@ public class CategoryDAO {
             transaction = session.beginTransaction();
             session.save(category);
             transaction.commit();
+        } catch (org.hibernate.exception.ConstraintViolationException e) {
+            if (transaction != null) transaction.rollback();
+            System.out.println("Bu isimde zaten bir kategori mevcut.");
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
+            if (transaction != null) transaction.rollback();
             e.printStackTrace();
         }
     }
+
 
     public void updateCategory(Category category) {
         Transaction transaction = null;

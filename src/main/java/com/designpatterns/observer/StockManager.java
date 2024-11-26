@@ -13,10 +13,9 @@ public class StockManager extends Subject {
         this.productDAO = new ProductDAO();
     }
 
-    // Stok güncelleme işlemi
     public void updateStock(Product product, int quantity) {
         product.updateStock(quantity);
-        productDAO.updateProduct(product); // Veritabanında stok güncelle
+        productDAO.updateProduct(product);
         notifyObservers(product);
     }
 }

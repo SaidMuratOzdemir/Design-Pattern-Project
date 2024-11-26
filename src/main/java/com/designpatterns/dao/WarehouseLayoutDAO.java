@@ -1,8 +1,8 @@
 package com.designpatterns.dao;
 
 
+import com.designpatterns.database.HibernateUtil;
 import com.designpatterns.layout.WarehouseLayout;
-import com.designpatterns.database.DBConnection;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -12,10 +12,13 @@ public class WarehouseLayoutDAO {
 
     public void addWarehouseLayout(WarehouseLayout layout) {
         Transaction transaction = null;
-        try (Session session = DBConnection.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             session.save(layout);
             transaction.commit();
+        } catch (org.hibernate.exception.ConstraintViolationException e) {
+            if (transaction != null) transaction.rollback();
+            System.out.println("Bu isimde zaten bir depo düzeni mevcut.");
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
             e.printStackTrace();
@@ -24,7 +27,7 @@ public class WarehouseLayoutDAO {
 
     public void updateWarehouseLayout(WarehouseLayout layout) {
         Transaction transaction = null;
-        try (Session session = DBConnection.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             session.update(layout);
             transaction.commit();
@@ -36,7 +39,7 @@ public class WarehouseLayoutDAO {
 
     public void deleteWarehouseLayout(int id) {
         Transaction transaction = null;
-        try (Session session = DBConnection.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             WarehouseLayout layout = session.get(WarehouseLayout.class, id);
             if (layout != null) {
@@ -51,7 +54,7 @@ public class WarehouseLayoutDAO {
     }
 
     public WarehouseLayout getWarehouseLayoutById(int id) {
-        try (Session session = DBConnection.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(WarehouseLayout.class, id);
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,7 +63,7 @@ public class WarehouseLayoutDAO {
     }
 
     public List<WarehouseLayout> getAllWarehouseLayouts() {
-        try (Session session = DBConnection.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("from WarehouseLayout", WarehouseLayout.class).list();
         } catch (Exception e) {
             e.printStackTrace();

@@ -14,7 +14,7 @@ public class StockManager extends Subject {
     }
 
     public void updateStock(Product product, int quantity) {
-        product.updateStock(quantity);
+        product.setStock(quantity);
         productDAO.updateProduct(product);
         notifyObservers(product);
     }

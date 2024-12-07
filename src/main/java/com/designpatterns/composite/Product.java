@@ -81,16 +81,11 @@ public class Product implements InventoryComponent {
         this.warehouseLayout = warehouseLayout;
     }
 
-    public void updateStock(int quantity) {
+    public void setStock(int quantity) {
         this.stock += quantity;
     }
 
     public void display(String indent) {
         System.out.println(indent + "Product: " + name + " | Stock: " + stock);
-    }
-
-    public void setStock(int stock2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setStock'");
     }
 }

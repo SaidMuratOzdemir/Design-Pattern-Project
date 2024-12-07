@@ -88,4 +88,6 @@ public class Product implements InventoryComponent {
     public void display(String indent) {
         System.out.println(indent + "Product: " + name + " | Stock: " + stock);
     }
+
+    
 }

@@ -62,7 +62,7 @@ public class WarehouseLayoutDAO {
         return null;
     }
 
-    public static List<WarehouseLayout> getAllWarehouseLayouts() {
+    public List<WarehouseLayout> getAllWarehouseLayouts() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("from WarehouseLayout", WarehouseLayout.class).list();
         } catch (Exception e) {

@@ -5,20 +5,25 @@ import com.designpatterns.composite.Product;
 import com.designpatterns.dao.CategoryDAO;
 import com.designpatterns.dao.ProductDAO;
 import com.designpatterns.factory.ProductFactory;
+import com.designpatterns.observer.StockManager;
+import com.designpatterns.layout.WarehouseLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
 public class ProductManagementUI extends JFrame {
-    private JTextField productIdField, productNameField, productStockField;
-    private JButton addButton, updateButton, deleteButton, assignCategoryButton;
+    private JTextField productIdField, productNameField, productStockField, stockUpdateField;
+    private JButton addButton, deleteButton, assignCategoryButton, updateStockButton, sortButton, lowStockButton, showWarehouseButton, listByCategoryButton;
     private JList<String> productList, categoryList;
     private DefaultListModel<String> productListModel, categoryListModel;
 
     private static final ProductDAO productDAO = new ProductDAO();
     private static final CategoryDAO categoryDAO = new CategoryDAO();
     private static final ProductFactory productFactory = new ProductFactory();
+    
+    // StockManager nesnesi tanımlanıyor
+    private static final StockManager stockManager = new StockManager();
 
     public ProductManagementUI() {
         setTitle("Product Management");
@@ -57,17 +62,33 @@ public class ProductManagementUI extends JFrame {
         inputPanel.add(new JLabel("Stock:"));
         inputPanel.add(productStockField);
 
+        // Stock Update Panel (Separate for Stock Update)
+        JPanel stockUpdatePanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        stockUpdateField = new JTextField();
+        updateStockButton = new JButton("Update Stock");
+
+        stockUpdatePanel.add(new JLabel("Stock Change (+ or -):"));
+        stockUpdatePanel.add(stockUpdateField);
+
         // Button Panel
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 4, 10, 10));
         addButton = new JButton("Add Product");
-        updateButton = new JButton("Update Product");
         deleteButton = new JButton("Delete Product");
         assignCategoryButton = new JButton("Assign Category");
+        sortButton = new JButton("Sort by Stock");
+        lowStockButton = new JButton("Low Stock Products");
+        showWarehouseButton = new JButton("Show Warehouse");
+        listByCategoryButton = new JButton("List by Category");
 
         buttonPanel.add(addButton);
-        buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(assignCategoryButton);
+        buttonPanel.add(sortButton);
+        buttonPanel.add(lowStockButton);
+        buttonPanel.add(showWarehouseButton);
+        buttonPanel.add(listByCategoryButton);
+        buttonPanel.add(stockUpdatePanel);
+        buttonPanel.add(updateStockButton);
 
         add(mainPanel, BorderLayout.CENTER);
         add(inputPanel, BorderLayout.NORTH);
@@ -75,9 +96,13 @@ public class ProductManagementUI extends JFrame {
 
         // Event Listeners
         addButton.addActionListener(e -> addProduct());
-        updateButton.addActionListener(e -> updateProduct());
         deleteButton.addActionListener(e -> deleteProduct());
         assignCategoryButton.addActionListener(e -> assignCategory());
+        updateStockButton.addActionListener(e -> updateStock());
+        sortButton.addActionListener(e -> sortByStock());
+        lowStockButton.addActionListener(e -> showLowStockProducts());
+        showWarehouseButton.addActionListener(e -> showProductWarehouse());
+        listByCategoryButton.addActionListener(e -> listByCategory());
 
         productList.addListSelectionListener(e -> loadCategories());
         loadProducts();
@@ -124,33 +149,6 @@ public class ProductManagementUI extends JFrame {
         }
     }
 
-    private void updateProduct() {
-        String selectedProduct = productList.getSelectedValue();
-        String newProductName = productNameField.getText().trim();
-        String stockString = productStockField.getText().trim();
-
-        if (selectedProduct != null && !newProductName.isEmpty() && !stockString.isEmpty()) {
-            try {
-                int stock = Integer.parseInt(stockString);
-                int productId = Integer.parseInt(selectedProduct.split(" ")[0]);
-                Product product = productDAO.getProductById(productId);
-
-                if (product != null) {
-                    product.setName(newProductName);
-                    product.updateStock(stock);
-                    productDAO.updateProduct(product);
-                    JOptionPane.showMessageDialog(this, "Product updated successfully!");
-                    clearFields();
-                    loadProducts();
-                }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Stock must be a valid number.");
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Select a product and provide updated information.");
-        }
-    }
-
     private void deleteProduct() {
         String selectedProduct = productList.getSelectedValue();
 
@@ -186,10 +184,107 @@ public class ProductManagementUI extends JFrame {
         }
     }
 
+    private void updateStock() {
+        String selectedProduct = productList.getSelectedValue();
+        String stockChangeString = stockUpdateField.getText().trim();
+
+        if (selectedProduct != null && !stockChangeString.isEmpty()) {
+            try {
+                int stockChange = Integer.parseInt(stockChangeString);
+                int productId = Integer.parseInt(selectedProduct.split(" ")[0]);
+                Product product = productDAO.getProductById(productId);
+
+                if (product != null) {
+                    stockManager.updateStock(product, stockChange); // Observer'dan stok güncellemesi yapılıyor
+                    JOptionPane.showMessageDialog(this, "Stock updated successfully!");
+                    loadProducts();
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Stock change must be a valid number.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Select a product and provide a valid stock change.");
+        }
+    }
+
+    // Ürünleri stok seviyesine göre sıralama (artış/azalış)
+    private void sortByStock() {
+        String order = JOptionPane.showInputDialog(this, "Enter 'asc' for ascending or 'desc' for descending");
+        if (order != null && (order.equals("asc") || order.equals("desc"))) {
+            List<Product> sortedProducts = productDAO.getProductsSortedByStock(order.equals("asc"));
+            productListModel.clear();
+            for (Product product : sortedProducts) {
+                productListModel.addElement(product.getId() + " - " + product.getName() + " | Stock: " + product.getStock());
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter 'asc' or 'desc'.");
+        }
+    }
+
+    // Düşük stoklu ürünleri raporlama
+    private void showLowStockProducts() {
+        String thresholdString = JOptionPane.showInputDialog(this, "Enter the stock threshold:");
+        if (thresholdString != null) {
+            try {
+                int threshold = Integer.parseInt(thresholdString);
+                List<Product> lowStockProducts = productDAO.getLowStockProducts(threshold);
+                if (lowStockProducts.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "No low stock products found.");
+                } else {
+                    DefaultListModel<String> lowStockModel = new DefaultListModel<>();
+                    for (Product product : lowStockProducts) {
+                        lowStockModel.addElement(product.getId() + " - " + product.getName() + " | Stock: " + product.getStock());
+                    }
+                    JOptionPane.showMessageDialog(this, new JList<>(lowStockModel), "Low Stock Products", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Please enter a valid number for threshold.");
+            }
+        }
+    }
+
+    // Ürünün ait olduğu depo düzenini gösterme
+    private void showProductWarehouse() {
+        String selectedProduct = productList.getSelectedValue();
+        if (selectedProduct != null) {
+            int productId = Integer.parseInt(selectedProduct.split(" ")[0]);
+            Product product = productDAO.getProductById(productId);
+            if (product != null && product.getWarehouseLayout() != null) {
+                WarehouseLayout warehouse = product.getWarehouseLayout();
+                JOptionPane.showMessageDialog(this, "Product is in warehouse: " + warehouse.getLayoutName());
+            } else {
+                JOptionPane.showMessageDialog(this, "No warehouse assigned to this product.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Select a product to view its warehouse.");
+        }
+    }
+
+    // Belirli bir kategorideki ürünleri listeleme
+    private void listByCategory() {
+        String selectedCategory = categoryList.getSelectedValue();
+        if (selectedCategory != null) {
+            int categoryId = Integer.parseInt(selectedCategory.split(" ")[0]);
+            List<Product> productsByCategory = productDAO.getProductsByCategoryId(categoryId);
+            if (productsByCategory != null && !productsByCategory.isEmpty()) {
+                DefaultListModel<String> categoryProductModel = new DefaultListModel<>();
+                for (Product product : productsByCategory) {
+                    categoryProductModel.addElement(product.getId() + " - " + product.getName() + " | Stock: " + product.getStock());
+                }
+                JOptionPane.showMessageDialog(this, new JList<>(categoryProductModel), "Products in Category", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "No products found in this category.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Select a category to view its products.");
+        }
+    }
+
     private void clearFields() {
         productIdField.setText("");
         productNameField.setText("");
         productStockField.setText("");
+        stockUpdateField.setText("");
     }
 
     public static void main(String[] args) {

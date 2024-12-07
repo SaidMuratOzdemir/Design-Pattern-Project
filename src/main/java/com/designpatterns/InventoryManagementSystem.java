@@ -202,7 +202,7 @@ public class InventoryManagementSystem {
 
 
     private static void addCategory() {
-        System.out.println("\n--- Kategori Ekle ---");
+        System.out.println("\n--- 2 Ekle ---");
         String name = getStringInput("Kategori adı: ");
 
         System.out.print("Üst kategori seçmek istiyor musunuz? (evet/hayır): ");

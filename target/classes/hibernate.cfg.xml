@@ -1,0 +1,25 @@
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/dpproject?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true</property>
+        <property name="hibernate.connection.username">dpproject</property>
+        <property name="hibernate.connection.password">dpproject</property>
+
+        <property name="hibernate.hikari.minimumIdle">5</property>
+        <property name="hibernate.hikari.maximumPoolSize">20</property>
+        <property name="hibernate.hikari.idleTimeout">30000</property>
+        <property name="hibernate.hikari.dataSource.cachePrepStmts">true</property>
+
+        <property name="hibernate.connection.provider_class">org.hibernate.hikaricp.internal.HikariCPConnectionProvider</property>
+
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.format_sql">false</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <mapping class="com.designpatterns.composite.Category"/>
+        <mapping class="com.designpatterns.composite.Product"/>
+        <mapping class="com.designpatterns.layout.WarehouseLayout"/>
+    </session-factory>
+</hibernate-configuration>

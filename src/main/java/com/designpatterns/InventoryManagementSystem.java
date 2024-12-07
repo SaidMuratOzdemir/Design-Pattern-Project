@@ -202,7 +202,7 @@ public class InventoryManagementSystem {
 
 
     private static void addCategory() {
-        System.out.println("\n--- 2 Ekle ---");
+        System.out.println("\n--- Kategori Ekle ---");
         String name = getStringInput("Kategori adı: ");
 
         System.out.print("Üst kategori seçmek istiyor musunuz? (evet/hayır): ");
@@ -549,7 +549,7 @@ public class InventoryManagementSystem {
         }
 
         String subCategoryName = getStringInput("Alt kategori adı: ");
-        Category subCategory = new Category(subCategoryName);
+        Category subCategory = categoryFactory.createCategory(subCategoryName);
 
         parentCategory.addSubCategory(subCategory);
         categoryDAO.updateCategory(parentCategory);

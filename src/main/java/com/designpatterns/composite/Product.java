@@ -81,7 +81,7 @@ public class Product implements InventoryComponent {
         this.warehouseLayout = warehouseLayout;
     }
 
-    public void updateStock(int quantity) {
+    public void setStock(int quantity) {
         this.stock += quantity;
     }
 
@@ -89,5 +89,5 @@ public class Product implements InventoryComponent {
         System.out.println(indent + "Product: " + name + " | Stock: " + stock);
     }
 
-   
+    
 }

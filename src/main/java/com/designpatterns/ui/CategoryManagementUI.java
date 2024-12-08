@@ -10,7 +10,7 @@ import java.util.List;
 
 public class CategoryManagementUI extends JFrame {
     private JTextField categoryNameField, subCategoryNameField;
-    private JButton addButton, deleteButton, updateButton, addSubCategoryButton, removeSubCategoryButton, changeParentButton;
+    private JButton addButton, deleteButton, updateButton, addSubCategoryButton, removeSubCategoryButton;
     private JList<String> categoryList, subCategoryList;
     private DefaultListModel<String> categoryListModel, subCategoryListModel;
 
@@ -58,14 +58,12 @@ public class CategoryManagementUI extends JFrame {
         updateButton = new JButton("Update Category");
         addSubCategoryButton = new JButton("Add Subcategory");
         removeSubCategoryButton = new JButton("Remove Subcategory");
-        changeParentButton = new JButton("Change Parent");
 
         buttonPanel.add(addButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(updateButton);
         buttonPanel.add(addSubCategoryButton);
         buttonPanel.add(removeSubCategoryButton);
-        buttonPanel.add(changeParentButton);
 
         add(mainPanel, BorderLayout.CENTER);
         add(inputPanel, BorderLayout.NORTH);
@@ -77,7 +75,6 @@ public class CategoryManagementUI extends JFrame {
         updateButton.addActionListener(e -> updateCategory());
         addSubCategoryButton.addActionListener(e -> addSubCategory());
         removeSubCategoryButton.addActionListener(e -> removeSubCategory());
-        changeParentButton.addActionListener(e -> changeParentCategory());
 
         categoryList.addListSelectionListener(e -> loadSubCategories());
 
@@ -184,38 +181,21 @@ public class CategoryManagementUI extends JFrame {
         if (selectedCategory != null && selectedSubCategory != null) {
             int parentCategoryId = Integer.parseInt(selectedCategory.split(" ")[0]);
             int subCategoryId = Integer.parseInt(selectedSubCategory.split(" ")[0]);
+
             Category parentCategory = categoryDAO.getCategoryById(parentCategoryId);
             Category subCategory = categoryDAO.getCategoryById(subCategoryId);
 
             if (parentCategory != null && subCategory != null) {
                 parentCategory.removeSubCategory(subCategory);
+                subCategory.setParent(null); // Alt kategorinin üst kategori referansını temizle
                 categoryDAO.updateCategory(parentCategory);
+                categoryDAO.updateCategory(subCategory);
+
                 JOptionPane.showMessageDialog(this, "Subcategory removed successfully!");
                 loadSubCategories();
             }
         } else {
             JOptionPane.showMessageDialog(this, "Please select a category and a subcategory to remove.");
-        }
-    }
-
-    private void changeParentCategory() {
-        String selectedSubCategory = subCategoryList.getSelectedValue();
-        String newParentCategory = categoryList.getSelectedValue();
-
-        if (selectedSubCategory != null && newParentCategory != null) {
-            int subCategoryId = Integer.parseInt(selectedSubCategory.split(" ")[0]);
-            int parentCategoryId = Integer.parseInt(newParentCategory.split(" ")[0]);
-            Category subCategory = categoryDAO.getCategoryById(subCategoryId);
-            Category newParent = categoryDAO.getCategoryById(parentCategoryId);
-
-            if (subCategory != null && newParent != null) {
-                subCategory.setParent(newParent);
-                categoryDAO.updateCategory(subCategory);
-                JOptionPane.showMessageDialog(this, "Parent category updated successfully!");
-                loadSubCategories();
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Please select a subcategory and a new parent category.");
         }
     }
 

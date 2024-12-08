@@ -13,16 +13,14 @@ import java.awt.*;
 import java.util.List;
 
 public class ProductManagementUI extends JFrame {
-    private JTextField productIdField, productNameField, productStockField, stockUpdateField;
-    private JButton addButton, deleteButton, assignCategoryButton, updateStockButton, sortButton, lowStockButton, showWarehouseButton, listByCategoryButton;
+    private JTextField productIdField, productNameField, productStockField, stockUpdateField, searchField;
+    private JButton addButton, deleteButton, assignCategoryButton, updateStockButton, sortButton, lowStockButton, showWarehouseButton, listByCategoryButton, searchButton;
     private JList<String> productList, categoryList;
     private DefaultListModel<String> productListModel, categoryListModel;
 
     private static final ProductDAO productDAO = new ProductDAO();
     private static final CategoryDAO categoryDAO = new CategoryDAO();
     private static final ProductFactory productFactory = new ProductFactory();
-    
-    // StockManager nesnesi tanımlanıyor
     private static final StockManager stockManager = new StockManager();
 
     public ProductManagementUI() {
@@ -50,10 +48,11 @@ public class ProductManagementUI extends JFrame {
         mainPanel.add(categoryScrollPane);
 
         // Input Panel
-        JPanel inputPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JPanel inputPanel = new JPanel(new GridLayout(4, 2, 10, 10));
         productIdField = new JTextField();
         productNameField = new JTextField();
         productStockField = new JTextField();
+        searchField = new JTextField();
 
         inputPanel.add(new JLabel("Product ID:"));
         inputPanel.add(productIdField);
@@ -61,8 +60,10 @@ public class ProductManagementUI extends JFrame {
         inputPanel.add(productNameField);
         inputPanel.add(new JLabel("Stock:"));
         inputPanel.add(productStockField);
+        inputPanel.add(new JLabel("Search by Name:"));
+        inputPanel.add(searchField);
 
-        // Stock Update Panel (Separate for Stock Update)
+        // Stock Update Panel
         JPanel stockUpdatePanel = new JPanel(new GridLayout(1, 2, 10, 10));
         stockUpdateField = new JTextField();
         updateStockButton = new JButton("Update Stock");
@@ -71,7 +72,7 @@ public class ProductManagementUI extends JFrame {
         stockUpdatePanel.add(stockUpdateField);
 
         // Button Panel
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 4, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(3, 3, 10, 10));
         addButton = new JButton("Add Product");
         deleteButton = new JButton("Delete Product");
         assignCategoryButton = new JButton("Assign Category");
@@ -79,6 +80,7 @@ public class ProductManagementUI extends JFrame {
         lowStockButton = new JButton("Low Stock Products");
         showWarehouseButton = new JButton("Show Warehouse");
         listByCategoryButton = new JButton("List by Category");
+        searchButton = new JButton("Search");
 
         buttonPanel.add(addButton);
         buttonPanel.add(deleteButton);
@@ -87,6 +89,7 @@ public class ProductManagementUI extends JFrame {
         buttonPanel.add(lowStockButton);
         buttonPanel.add(showWarehouseButton);
         buttonPanel.add(listByCategoryButton);
+        buttonPanel.add(searchButton);
         buttonPanel.add(stockUpdatePanel);
         buttonPanel.add(updateStockButton);
 
@@ -103,6 +106,7 @@ public class ProductManagementUI extends JFrame {
         lowStockButton.addActionListener(e -> showLowStockProducts());
         showWarehouseButton.addActionListener(e -> showProductWarehouse());
         listByCategoryButton.addActionListener(e -> listByCategory());
+        searchButton.addActionListener(e -> searchProduct());
 
         productList.addListSelectionListener(e -> loadCategories());
         loadProducts();
@@ -149,6 +153,22 @@ public class ProductManagementUI extends JFrame {
         }
     }
 
+    private void searchProduct() {
+        String searchTerm = searchField.getText().trim();
+        if (!searchTerm.isEmpty()) {
+            List<Product> foundProducts = productDAO.searchProductsByName(searchTerm);
+            productListModel.clear();
+            if (!foundProducts.isEmpty()) {
+                for (Product product : foundProducts) {
+                    productListModel.addElement(product.getId() + " - " + product.getName() + " | Stock: " + product.getStock());
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No products found matching the search term.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please enter a search term.");
+        }
+    }
     private void deleteProduct() {
         String selectedProduct = productList.getSelectedValue();
 

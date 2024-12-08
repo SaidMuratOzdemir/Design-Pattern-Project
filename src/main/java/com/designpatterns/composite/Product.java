@@ -2,7 +2,6 @@ package com.designpatterns.composite;
 
 
 import com.designpatterns.layout.WarehouseLayout;
-import com.designpatterns.observer.Subject;
 import jakarta.persistence.*;
 
 
@@ -26,22 +25,17 @@ public class Product implements InventoryComponent {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @Transient
-    private Subject subject;
-
     @ManyToOne
     @JoinColumn(name = "warehouse_layout_id")
     private WarehouseLayout warehouseLayout;
 
     public Product() {
-        this.subject = new Subject();
     }
 
     public Product(String productId, String name, int stock) {
         this.productId = productId;
         this.name = name;
         this.stock = stock;
-        this.subject = new Subject();
     }
 
     public int getId() {
@@ -88,6 +82,4 @@ public class Product implements InventoryComponent {
     public void display(String indent) {
         System.out.println(indent + "Product: " + name + " | Stock: " + stock);
     }
-
-    
 }
